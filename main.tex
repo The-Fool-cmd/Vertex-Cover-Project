@@ -1,7 +1,97 @@
-\documentclass{article}
+\documentclass{llncs}
+
+\usepackage[utf8]{inputenc}
+\usepackage[romanian]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
 
 \begin{document}
 
-Hello, World!
+\title{Proiect Analiza Algoritmilor: Problema Vertex Cover}
+\author{Savu Vlad-Ștefan}
+\institute{Facultatea de Automatică și Calculatoare, \\
+Universitatea Politehnica din București \\
+\email{vlad.savu@stud.acs.upb.ro}}
+
+\maketitle
+
+\begin{abstract}
+Această lucrare analizează problema acoperirii cu vârfuri (Vertex Cover), o problemă fundamentală în teoria grafurilor și una dintre cele 21 de probleme NP-complete identificate de Richard Karp în 1972. Studiul de față urmărește compararea performanței dintre o soluție exactă, bazată pe tehnica backtracking, și două abordări euristice/aproximative. Analiza se concentrează pe compromisul dintre timpul de execuție și calitatea soluției obținute (apropierea de cardinalitatea minimă).
+\keywords{Vertex Cover \and NP-Complete \and Independent Set \and Algoritmi Aproximativi \and Backtracking \and Optimizare combinatorie.}
+\end{abstract}
+
+\section{Introducere}
+
+\subsection{Definirea Problemei}
+Problema acoperirii cu vârfuri (\textit{Vertex Cover}) este o problemă clasică de optimizare a grafurilor. Fiind dat un graf neorientat $G=(V,E)$, o acoperire cu vârfuri este o submulțime de noduri $C \subseteq V$ astfel încât pentru fiecare muchie $\{u,v\} \in E$, cel puțin unul dintre capetele $u$ sau $v$ (sau ambele) aparține mulțimii $C$.
+
+
+
+Scopul principal este identificarea unei acoperiri de cardinalitate minimă, numită \textit{Minimum Vertex Cover}. În varianta sa de decizie, problema întreabă dacă există o acoperire de dimensiune cel mult $k$. Această variantă este demonstrată a fi NP-completă, ceea ce implică faptul că, în absența unor dovezi contrare privind relația $P=NP$, nu există un algoritm de timp polinomial care să rezolve problema pe cazul general.
+
+\subsection{Context Istoric și Importanță}
+Vertex Cover ocupă un loc central în cercetarea complexității computaționale. Ea este strâns legată de alte probleme celebre, precum \textit{Independent Set} și \textit{Clique}. De fapt, o mulțime $S$ este un set independent în graful $G$ dacă și numai dacă complementul său, $V \setminus S$, este o acoperire cu vârfuri. Această dualitate este adesea utilizată în demonstrațiile de NP-duritate și în transformările polinomiale dintre probleme.
+
+\subsection{Aplicații practice și conexiuni cu alte probleme}
+Problema Vertex Cover nu este izolată; ea face parte dintr-o familie de probleme de optimizare combinatorie, servind drept model pentru numeroase situații reale:
+
+\begin{itemize}
+    \item \textbf{Legătura cu Problema Rucsacului (Knapsack):} Deși Knapsack pare o problemă de inventar, în variantele sale pe grafuri, aceasta se intersectează cu Vertex Cover. Dacă fiecare nod are un cost de instalare diferit, problema devine una de tip Knapsack: selectarea subsetului de noduri cu cost minim care să acopere toate muchiile sub o constrângere de resurse.
+    
+    \item \textbf{Bioinformatică și Eliminarea Conflictelor:} În alinierea secvențelor de ADN, se construiesc grafuri unde muchiile reprezintă date contradictorii. Rezolvarea Vertex Cover permite identificarea setului minim de date ce trebuie eliminate pentru a obține un set consistent.
+
+    \item \textbf{Cyber-Security (Sisteme IDS):} În rețelele mari, monitorizarea fiecărui pachet este costisitoare. Vertex Cover este utilizată pentru a plasa sisteme de detecție a intruziunilor în noduri strategice, asigurând monitorizarea tuturor conexiunilor.
+
+    \item \textbf{Designul Circuitelor VLSI:} În proiectarea cipurilor, Vertex Cover ajută la minimizarea numărului de puncte de testare necesare pentru a verifica integritatea circuitelor pe suprafața siliciului.
+\end{itemize}
+
+\section{Demonstrație NP-Hard}
+
+\subsection{Apartenența la clasa NP}
+Pentru a demonstra că problema Vertex Cover aparține clasei NP, trebuie să arătăm că o \textbf{propunere de soluție} (un set de noduri) poate fi verificată în timp polinomial.
+
+Presupunem că primim o submulțime de noduri $C \subseteq V$ despre care se afirmă că este o acoperire validă. Algoritmul de verificare parcurge fiecare muchie $\{u, v\} \in E$ și verifică dacă cel puțin unul dintre capete se află în setul $C$. Deoarece numărul de muchii este finit, iar verificarea fiecăreia se face rapid prin interogarea listei $C$, complexitatea totală este $O(E)$. Prin urmare, deoarece verificarea se face în timp polinomial, Vertex Cover aparține clasei NP.
+
+\subsection{Reducerea de la Independent Set}
+Demonstrăm că Vertex Cover este NP-Hard folosind o reducere polinomială de la problema \textit{Independent Set}, despre care se știe deja că este NP-Hard.
+
+
+
+\begin{theorem}
+Fie $G=(V,E)$ un graf neorientat. O mulțime $S \subseteq V$ este un set independent dacă și numai dacă complementul său, $V \setminus S$, este o acoperire cu vârfuri (Vertex Cover) pentru graful $G$.
+\end{theorem}
+
+\begin{proof}
+$(\Rightarrow)$ Presupunem că $S$ este un set independent. Conform definiției, nicio muchie din $E$ nu are ambele capete în $S$. Acest lucru înseamnă că pentru orice muchie $\{u, v\}$, cel puțin unul dintre noduri ($u$ sau $v$) trebuie să se afle în afara lui $S$, adică în $V \setminus S$. Astfel, $V \setminus S$ acoperă toate muchiile, deci este un Vertex Cover.
+
+$(\Leftarrow)$ Presupunem că $V \setminus S$ este o acoperire cu vârfuri. Atunci, orice muchie din graf are cel puțin un capăt în $V \setminus S$. Rezultă că nicio muchie nu poate avea ambele capete în $S$. Aceasta este exact definiția unui set independent, deci $S$ este un set independent.
+\end{proof}
+
+Concluzionăm că, deoarece putem transforma orice instanță a problemei Independent Set într-o instanță de Vertex Cover printr-o simplă operație de complementare (care durează timp polinomial), problema Vertex Cover este NP-Hard.
+
+\begin{thebibliography}{8}
+
+\bibitem{karp1972}
+Karp, R.M.: Reducibility among combinatorial problems. In: Miller, R.E., Thatcher, J.W. (eds.) Complexity of Computer Computations, pp. 85--103. Plenum Press, New York (1972). 
+\textit{(Sursa principală pentru clasificarea Vertex Cover ca fiind NP-completă.)}
+
+\bibitem{clrs2009}
+Cormen, T.H., Leiserson, C.E., Rivest, R.L., Stein, C.: Introduction to Algorithms, 3rd edn. MIT Press, Cambridge (2009). 
+\textit{(Manualul standard de algoritmică folosit pentru definițiile formale și demonstrația reducerii de la Independent Set.)}
+
+\bibitem{garey1979}
+Garey, M.R., Johnson, D.S.: Computers and Intractability: A Guide to the Theory of NP-Completeness. W. H. Freeman and Company, San Francisco (1979). 
+\textit{(Cartea de referință pentru demonstrarea NP-durității diverselor probleme.)}
+
+\bibitem{sipser2012}
+Sipser, M.: Introduction to the Theory of Computation, 3rd edn. Cengage Learning (2012). 
+\textit{(Sursa pentru conceptele de clase de complexitate, certificate și verificatori.)}
+
+\bibitem{geeksforgeeks}
+GeeksforGeeks: Vertex Cover Problem | Set 1 (Introduction and Approximate Algorithm), \url{https://www.geeksforgeeks.org/vertex-cover-problem-set-1-introduction-approximate-algorithm/}. Accesat la: 2024-05-22.
+\textit{(Sursa pentru implementarea euristică de bază.)}
+
+\end{thebibliography}
 
 \end{document}
