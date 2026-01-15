@@ -295,110 +295,6 @@ static LPRawResult approx_lp_rounding_2_raw(const Graph& g, long long timeout_ms
 #endif
 }
 
-// -------------------- Quick exact solver: two cliques connected by ONE bridge --------------------
-static vector<int> bfs_component_skip_edge(const Graph& g, int start, int banned_ei, vector<char>& vis) {
-    vector<int> comp;
-    queue<int> q;
-    vis[start] = true;
-    q.push(start);
-    while (!q.empty()) {
-        int u = q.front(); q.pop();
-        comp.push_back(u);
-        for (int ei : g.adjEdgeIdx[u]) {
-            if (ei == banned_ei) continue;
-            auto [a,b] = g.edges[ei];
-            int v = (a == u) ? b : a;
-            if (!vis[v]) { vis[v] = true; q.push(v); }
-        }
-    }
-    return comp;
-}
-
-static bool is_clique_component(const Graph& g, const vector<int>& comp, const vector<char>& inComp) {
-    long long s = (long long)comp.size();
-    if (s <= 1) return true;
-    long long required = s * (s - 1) / 2;
-    long long cnt = 0;
-    for (auto [u,v] : g.edges) {
-        if (inComp[u] && inComp[v]) cnt++;
-    }
-    return cnt == required;
-}
-
-static optional<vector<int>> solve_bridge_of_two_cliques(const Graph& g) {
-    int n = g.n;
-    int m = (int)g.edges.size();
-    if (m == 0) return vector<int>{};
-
-    vector<int> disc(n, -1), low(n, -1), parentEdge(n, -1);
-    int timer = 0;
-    vector<int> bridges;
-
-    function<void(int)> dfs = [&](int u) {
-        disc[u] = low[u] = ++timer;
-        for (int ei : g.adjEdgeIdx[u]) {
-            auto [a,b] = g.edges[ei];
-            int v = (a == u) ? b : a;
-            if (disc[v] == -1) {
-                parentEdge[v] = ei;
-                dfs(v);
-                low[u] = min(low[u], low[v]);
-                if (low[v] > disc[u]) bridges.push_back(ei);
-            } else if (ei != parentEdge[u]) {
-                low[u] = min(low[u], disc[v]);
-            }
-        }
-    };
-
-    for (int i = 0; i < n; i++) if (disc[i] == -1) dfs(i);
-    if (bridges.empty()) return nullopt;
-
-    for (int be : bridges) {
-        auto [u0, v0] = g.edges[be];
-
-        vector<char> vis(n, false);
-        auto A = bfs_component_skip_edge(g, u0, be, vis);
-        if (vis[v0]) continue;
-        auto B = bfs_component_skip_edge(g, v0, be, vis);
-
-        vector<char> inA(n, false), inB(n, false);
-        for (int x : A) inA[x] = true;
-        for (int x : B) inB[x] = true;
-
-        bool okEdges = true;
-        for (int ei = 0; ei < m; ei++) {
-            auto [x,y] = g.edges[ei];
-            bool xa = inA[x], ya = inA[y];
-            bool xb = inB[x], yb = inB[y];
-            if ((xa && ya) || (xb && yb)) continue;
-            if (ei == be) continue;
-            okEdges = false;
-            break;
-        }
-        if (!okEdges) continue;
-        if (!is_clique_component(g, A, inA)) continue;
-        if (!is_clique_component(g, B, inB)) continue;
-
-        int omitA = -1;
-        for (int x : A) if (x != u0) { omitA = x; break; }
-        if (omitA == -1) omitA = u0;
-
-        int omitB = -1;
-        for (int x : B) if (x != v0) { omitB = x; break; }
-        if (omitB == -1) omitB = v0;
-
-        vector<int> cover;
-        cover.reserve(n);
-        for (int x : A) if (x != omitA) cover.push_back(x);
-        for (int x : B) if (x != omitB) cover.push_back(x);
-
-        if (!is_vertex_cover(g, cover)) cover.push_back(u0);
-        if (is_vertex_cover(g, cover)) return cover;
-    }
-
-    return nullopt;
-}
-
 // -------------------- Exact Branch & Bound (with timeout) --------------------
 struct BranchBoundSolver {
     const Graph& g;
@@ -816,9 +712,6 @@ static vector<BenchRow> run_bench(const string& folder, long long timeout_ms, in
         r.n = g.n;
         r.m = (int)g.edges.size();
 
-        // quick special-case
-        optional<vector<int>> special = solve_bridge_of_two_cliques(g);
-
         // LB from greedy maximal matching
         r.lb_match = greedy_maximal_matching_count(g, g.allEdges);
 
@@ -847,50 +740,38 @@ static vector<BenchRow> run_bench(const string& folder, long long timeout_ms, in
 
         // --- FPT (median of total time); OPT known if special or at least one rep finished ---
         {
-            if (special.has_value()) {
-                auto raw = *special;
-                auto clean = do_cleanup ? cleanup_cover(g, raw) : raw;
-                r.fpt_raw = (int)raw.size();
-                r.fpt = (int)clean.size();
-                r.fpt_solve_ms = 0.0;
-                r.fpt_cleanup_ms = 0.0;
-                r.fpt_ms = 0.0;
-                r.fpt_timedout = 0;
-                r.opt = r.fpt;
-            } else {
-                vector<RunResult> runs;
-                runs.reserve(reps);
+            vector<RunResult> runs;
+            runs.reserve(reps);
 
-                int best_exact_opt = INT_MAX;
-                bool any_exact = false;
+            int best_exact_opt = INT_MAX;
+            bool any_exact = false;
 
-                for (int it = 0; it < reps; it++) {
-                    auto rr = run_once_pipeline(g, [&]() -> RunResult {
-                        RunResult x;
-                        FPTSolver fpt(g, timeout_ms);
-                        x.raw = fpt.solve_minimum_raw();
-                        x.timed_out = fpt.timed_out;
-                        return x;
-                    }, do_cleanup);
+            for (int it = 0; it < reps; it++) {
+                auto rr = run_once_pipeline(g, [&]() -> RunResult {
+                    RunResult x;
+                    FPTSolver fpt(g, timeout_ms);
+                    x.raw = fpt.solve_minimum_raw();
+                    x.timed_out = fpt.timed_out;
+                    return x;
+                }, do_cleanup);
 
-                    if (!rr.timed_out) {
-                        any_exact = true;
-                        best_exact_opt = min(best_exact_opt, (int)rr.clean.size());
-                    }
-
-                    runs.push_back(std::move(rr));
+                if (!rr.timed_out) {
+                    any_exact = true;
+                    best_exact_opt = min(best_exact_opt, (int)rr.clean.size());
                 }
 
-                RunResult med = median_by_total(runs);
-                r.fpt_raw = (int)med.raw.size();
-                r.fpt = (int)med.clean.size();
-                r.fpt_solve_ms = med.solve_ms;
-                r.fpt_cleanup_ms = med.cleanup_ms;
-                r.fpt_ms = med.total_ms;
-                r.fpt_timedout = med.timed_out ? 1 : 0;
-
-                if (any_exact) r.opt = best_exact_opt;
+                runs.push_back(std::move(rr));
             }
+
+            RunResult med = median_by_total(runs);
+            r.fpt_raw = (int)med.raw.size();
+            r.fpt = (int)med.clean.size();
+            r.fpt_solve_ms = med.solve_ms;
+            r.fpt_cleanup_ms = med.cleanup_ms;
+            r.fpt_ms = med.total_ms;
+            r.fpt_timedout = med.timed_out ? 1 : 0;
+
+            if (any_exact) r.opt = best_exact_opt;
         }
 
         // --- MATCH (median) ---
@@ -1038,13 +919,6 @@ int main(int argc, char** argv) {
     }
 
     Graph g = read_graph_from_stream(cin);
-
-    // special-case exact
-    if (auto special = solve_bridge_of_two_cliques(g); special.has_value()) {
-        auto cover = do_cleanup ? cleanup_cover(g, *special) : *special;
-        print_solution(cover);
-        return 0;
-    }
 
     vector<int> raw, clean;
 
