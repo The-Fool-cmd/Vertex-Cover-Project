@@ -80,8 +80,14 @@ $(\Rightarrow)$ Presupunem că $S$ este un set independent. Conform definiției,
 $(\Leftarrow)$ Presupunem că $V \setminus S$ este o acoperire cu vârfuri. Atunci, orice muchie din graf are cel puțin un capăt în $V \setminus S$. Rezultă că nicio muchie nu poate avea ambele capete în $S$. Aceasta este exact definiția unui set independent, deci $S$ este un set independent.
 \end{proof}
 
-Concluzionăm că, deoarece putem transforma orice instanță a problemei Independent Set într-o instanță de Vertex Cover printr-o simplă operație de complementare (care durează timp polinomial), problema Vertex Cover este NP-Hard.
-
+\paragraph{Reducere (varianta de decizie).}
+Consideram instanta \textsc{Independent Set} $(G,k)$. Construim in timp polinomial instanta \textsc{Vertex Cover} $(G,k')$, unde $k' = |V| - k$ (pasul de transformare este doar calculul lui $k'$ si pastrarea aceluiasi graf).
+Din Teorema 1 rezulta echivalenta:
+\[
+G \text{ are un independent set de marime } \ge k \iff
+G \text{ are un vertex cover de marime } \le |V|-k = k'.
+\]
+Prin urmare, deoarece transformarea este polinomiala si \textsc{Independent Set} este NP-Complete, rezulta ca \textsc{Vertex Cover} este NP-Hard.
 %___________________________________________________________________________________________
 
 
@@ -364,13 +370,13 @@ Testele au fost rulate pe urmatoarea configuratie:
     \item \textbf{Compilator:} C++: \texttt{ -O2 -std=c++17 -Wall -Wextra -pedantic -DUSE\_GLPK}.
     \item \textbf{Solver LP:} GLPK (compilare cu \texttt{-DUSE\_GLPK} si link \texttt{-lglpk}).
     \item \textbf{Timeout:} \texttt{4000} ms pentru algoritmii exacati (BB si FPT).
-    \item \textbf{Repetari:} \texttt{5} repetari/instanta; timpul raportat este \texttt{median} (conform implementarii).
+    \item \textbf{Repetari:} \texttt{5} repetari/instanta; timpul raportat este \texttt{median}.
     \item \textbf{Post-procesare solutie:} \texttt{cleanup\_cover}.
-    \item \textbf{Set de teste:} \texttt{folder: tests}, total \texttt{40} instante.
+    \item \textbf{Set de teste:} \texttt{tests/}, total \texttt{40} instante.
 \end{itemize}
 \subsection{Test suite si generare date}
 
-Pentru evaluarea algoritmilor am folosit o suita determinista de teste, generata automat cu un script Python. Scopul a fost sa acoparim atat cazuri mici (unde putem valida usor corectitudinea), cat si instante mai mari (unde putem observa scalarea timpului de executie). Testele sunt scrise in fisiere text separate, numerotate, pentru a putea reproduce rezultatele in mod consistent.
+Pentru evaluarea algoritmilor am folosit o suita determinista de teste, generata automat cu un script Python. Scopul a fost sa acoperim atat cazuri mici (unde putem valida usor corectitudinea), cat si instante mai mari (unde putem observa scalarea timpului de executie). Testele sunt scrise in fisiere text separate, numerotate, pentru a putea reproduce rezultatele in mod consistent.
 
 \subsubsection{Formatul fisierelor de intrare}
 Fiecare test este un fisier \texttt{XX.in} care descrie un graf neorientat:
@@ -476,86 +482,87 @@ Test & $n$ & $m$ & BB (ms) & FPT (ms) & MATCH (ms) & LP (ms) \\
 
 
 % --- Unverified tabel 1 ---
-01.in & 1 & 0 & \texttt{0.000900} & \texttt{0.000000} & \texttt{0.000050} & \texttt{0.000020} \\
+01.in & 1 & 0 & \texttt{0.000900} & \textbf{0.000000} & \texttt{0.000050} & \texttt{0.000020} \\
 \hline
-02.in & 2 & 1 & \texttt{0.000560} & \texttt{0.000000} & \texttt{0.000110} & \texttt{0.104878} \\
+02.in & 2 & 1 & \texttt{0.000560} & \textbf{0.000000} & \texttt{0.000110} & \texttt{0.104878} \\
 \hline
-03.in & 3 & 2 & \texttt{0.000360} & \texttt{0.000000} & \texttt{0.000070} & \texttt{0.036509} \\
+03.in & 3 & 2 & \texttt{0.000360} & \textbf{0.000000} & \texttt{0.000070} & \texttt{0.036509} \\
 \hline
-04.in & 4 & 4 & \texttt{0.000610} & \texttt{0.000410} & \texttt{0.000090} & \texttt{0.035879} \\
+04.in & 4 & 4 & \texttt{0.000610} & \texttt{0.000410} & \textbf{0.000090} & \texttt{0.035879} \\
 \hline
-05.in & 5 & 10 & \texttt{0.001720} & \texttt{0.001820} & \texttt{0.000110} & \texttt{0.042329} \\
+05.in & 5 & 10 & \texttt{0.001720} & \texttt{0.001820} & \textbf{0.000110} & \texttt{0.042329} \\
 \hline
-06.in & 10 & 9 & \texttt{0.000460} & \texttt{0.000210} & \texttt{0.000070} & \texttt{0.033049} \\
+06.in & 10 & 9 & \texttt{0.000460} & \texttt{0.000210} & \textbf{0.000070} & \texttt{0.033049} \\
 \hline
-07.in & 20 & 19 & \texttt{0.001480} & \texttt{0.000660} & \texttt{0.000250} & \texttt{0.045329} \\
+07.in & 20 & 19 & \texttt{0.001480} & \texttt{0.000660} & \textbf{0.000250} & \texttt{0.045329} \\
 \hline
-08.in & 20 & 20 & \texttt{0.000760} & \texttt{0.000540} & \texttt{0.000240} & \texttt{0.052289} \\
+08.in & 20 & 20 & \texttt{0.000760} & \texttt{0.000540} & \textbf{0.000240} & \texttt{0.052289} \\
 \hline
-09.in & 20 & 100 & \texttt{0.001570} & \texttt{0.001090} & \texttt{0.000290} & \texttt{0.226756} \\
+09.in & 20 & 100 & \texttt{0.001570} & \texttt{0.001090} & \textbf{0.000290} & \texttt{0.226756} \\
 \hline
-10.in & 100 & 120 & \texttt{0.052479} & \texttt{0.905691} & \texttt{0.001370} & \texttt{0.336153} \\
+10.in & 100 & 120 & \texttt{0.052479} & \texttt{0.905691} & \textbf{0.001370} & \texttt{0.336153} \\
 \hline
-11.in & 100 & 2000 & \texttt{1711.191803} & \texttt{1.418921} & \texttt{0.000920} & \texttt{8.422586} \\
+11.in & 100 & 2000 & \texttt{1711.191803} & \texttt{1.418921} & \textbf{0.000920} & \texttt{8.422586} \\
 \hline
-12.in & 20 & 18 & \texttt{0.001970} & \texttt{0.002960} & \texttt{0.000190} & \texttt{0.051529} \\
+12.in & 20 & 18 & \texttt{0.001970} & \texttt{0.002960} & \textbf{0.000190} & \texttt{0.051529} \\
 \hline
-13.in & 50 & 49 & \texttt{0.007030} & \texttt{0.008050} & \texttt{0.000440} & \texttt{0.097988} \\
+13.in & 50 & 49 & \texttt{0.007030} & \texttt{0.008050} & \textbf{0.000440} & \texttt{0.097988} \\
 \hline
-14.in & 100 & 180 & \texttt{0.003799} & \texttt{0.002490} & \texttt{0.001290} & \texttt{0.522090} \\
+14.in & 100 & 180 & \texttt{0.003799} & \texttt{0.002490} & \textbf{0.001290} & \texttt{0.522090} \\
 \hline
-15.in & 15 & 105 & \texttt{0.482130} & \texttt{0.010340} & \texttt{0.000240} & \texttt{0.133227} \\
+15.in & 15 & 105 & \texttt{0.482130} & \texttt{0.010340} & \textbf{0.000240} & \texttt{0.133227} \\
 \hline
-16.in & 200 & 100 & \texttt{0.005400} & \texttt{0.003870} & \texttt{0.002460} & \texttt{0.360132} \\
+16.in & 200 & 100 & \texttt{0.005400} & \texttt{0.003870} & \textbf{0.002460} & \texttt{0.360132} \\
 \hline
-17.in & 100 & 294 & \texttt{0.001310} & \texttt{0.000830} & \texttt{0.000160} & \texttt{0.151237} \\
+17.in & 100 & 294 & \texttt{0.001310} & \texttt{0.000830} & \textbf{0.000160} & \texttt{0.151237} \\
 \hline
-18.in & 1000 & 999 & \texttt{0.028859} & \texttt{0.024350} & \texttt{0.017390} & \texttt{10.216730} \\
+18.in & 1000 & 999 & \texttt{0.028859} & \texttt{0.024350} & \textbf{0.017390} & \texttt{10.216730} \\
 \hline
-19.in & 1000 & 999 & \texttt{0.003080} & \texttt{0.002180} & \texttt{0.000480} & \texttt{0.698336} \\
+19.in & 1000 & 999 & \texttt{0.003080} & \texttt{0.002180} & \textbf{0.000480} & \texttt{0.698336} \\
 \hline
-20.in & 500 & 2500 & \texttt{0.037539} & \texttt{0.841272} & \texttt{0.000550} & \texttt{2.051598} \\
+20.in & 500 & 2500 & \texttt{0.037539} & \texttt{0.841272} & \textbf{0.000550} & \texttt{2.051598} \\
 \hline
-21.in & 500 & 748 & \texttt{0.014940} & \texttt{0.012380} & \texttt{0.008149} & \texttt{5.886419} \\
+21.in & 500 & 748 & \texttt{0.014940} & \texttt{0.012380} & \textbf{0.008149} & \texttt{5.886419} \\
 \hline
-22.in & 200 & 9901 & \texttt{TO} & \texttt{TO} & \texttt{0.034190} & \texttt{51.405499} \\
+22.in & 200 & 9901 & \texttt{TO} & \texttt{TO} & \textbf{0.034190} & \texttt{51.405499} \\
 \hline
-23.in & 30 & 0 & \texttt{0.000500} & \texttt{0.000300} & \texttt{0.000090} & \texttt{0.000060} \\
+23.in & 30 & 0 & \texttt{0.000500} & \texttt{0.000300} & \texttt{0.000090} & \textbf{0.000060} \\
 \hline
-24.in & 250 & 1000 & \texttt{0.011400} & \texttt{0.112918} & \texttt{0.000250} & \texttt{0.562889} \\
+24.in & 250 & 1000 & \texttt{0.011400} & \texttt{0.112918} & \textbf{0.000250} & \texttt{0.562889} \\
 \hline
-25.in & 200 & 198 & \texttt{0.005980} & \texttt{0.004340} & \texttt{0.002519} & \texttt{0.651817} \\
+25.in & 200 & 198 & \texttt{0.005980} & \texttt{0.004340} & \textbf{0.002519} & \texttt{0.651817} \\
 \hline
-26.in & 121 & 180 & \texttt{0.020830} & \texttt{0.103518} & \texttt{0.001490} & \texttt{0.584118} \\
+26.in & 121 & 180 & \texttt{0.020830} & \texttt{0.103518} & \textbf{0.001490} & \texttt{0.584118} \\
 \hline
-27.in & 121 & 180 & \texttt{0.003970} & \texttt{0.103208} & \texttt{0.001560} & \texttt{0.545319} \\
+27.in & 121 & 180 & \texttt{0.003970} & \texttt{0.103208} & \textbf{0.001560} & \texttt{0.545319} \\
 \hline
-28.in & 30 & 90 & \texttt{0.212586} & \texttt{11.646000} & \texttt{0.000780} & \texttt{0.250045} \\
+28.in & 30 & 90 & \texttt{0.212586} & \texttt{11.646000} & \textbf{0.000780} & \texttt{0.250045} \\
 \hline
-29.in & 40 & 210 & \texttt{25.156662} & \texttt{0.102158} & \texttt{0.000640} & \texttt{0.427821} \\
+29.in & 40 & 210 & \texttt{25.156662} & \texttt{0.102158} & \textbf{0.000640} & \texttt{0.427821} \\
 \hline
-30.in & 24 & 149 & \texttt{0.005240} & \texttt{0.008200} & \texttt{0.000370} & \texttt{0.343832} \\
+30.in & 24 & 149 & \texttt{0.005240} & \texttt{0.008200} & \textbf{0.000370} & \texttt{0.343832} \\
 \hline
-31.in & 120 & 597 & \texttt{TO} & \texttt{TO} & \texttt{0.002410} & \texttt{2.839111} \\
+31.in & 120 & 597 & \texttt{TO} & \texttt{TO} & \textbf{0.002410} & \texttt{2.839111} \\
 \hline
-32.in & 120 & 1294 & \texttt{TO} & \texttt{TO} & \texttt{0.003630} & \texttt{5.414659} \\
+32.in & 120 & 1294 & \texttt{TO} & \texttt{TO} & \textbf{0.003630} & \texttt{5.414659} \\
 \hline
-33.in & 200 & 548 & \texttt{TO} & \texttt{1.660176} & \texttt{0.000810} & \texttt{0.769084} \\
+33.in & 200 & 548 & \texttt{TO} & \texttt{1.660176} & \textbf{0.000810} & \texttt{0.769084} \\
 \hline
-34.in & 100 & 911 & \texttt{TO} & \texttt{TO} & \texttt{0.005270} & \texttt{2.771063} \\
+34.in & 100 & 911 & \texttt{TO} & \texttt{TO} & \textbf{0.005270} & \texttt{2.771063} \\
 \hline
-35.in & 120 & 3986 & \texttt{TO} & \texttt{TO} & \texttt{0.003940} & \texttt{87.914548} \\
+35.in & 120 & 3986 & \texttt{TO} & \texttt{TO} & \textbf{0.003940} & \texttt{87.914548} \\
 \hline
-36.in & 120 & 240 & \texttt{0.004440} & \texttt{0.003130} & \texttt{0.001720} & \texttt{0.961600} \\
+36.in & 120 & 240 & \texttt{0.004440} & \texttt{0.003130} & \textbf{0.001720} & \texttt{0.961600} \\
 \hline
-37.in & 160 & 1335 & \texttt{TO} & \texttt{TO} & \texttt{0.004190} & \texttt{8.165512} \\
+37.in & 160 & 1335 & \texttt{TO} & \texttt{TO} & \textbf{0.004190} & \texttt{8.165512} \\
 \hline
-38.in & 160 & 1335 & \texttt{TO} & \texttt{TO} & \texttt{0.004339} & \texttt{6.033676} \\
+38.in & 160 & 1335 & \texttt{TO} & \texttt{TO} & \textbf{0.004339} & \texttt{6.033676} \\
 \hline
-39.in & 200 & 1047 & \texttt{TO} & \texttt{900.190453} & \texttt{0.004590} & \texttt{3.990588} \\
+39.in & 200 & 1047 & \texttt{TO} & \texttt{900.190453} & \textbf{0.004590} & \texttt{3.990588} \\
 \hline
-40.in & 200 & 1047 & \texttt{TO} & \texttt{TO} & \texttt{0.004130} & \texttt{4.566826} \\
+40.in & 200 & 1047 & \texttt{TO} & \texttt{TO} & \textbf{0.004130} & \texttt{4.566826} \\
 \hline
+
 
 
 \end{longtable}
@@ -585,86 +592,87 @@ Test & OPT & MATCH raw & MATCH & Ratio & LP raw & LP & Ratio \\
 \hline
 \endlastfoot
 
-01.in & 0 & 0 & 0 & \texttt{NA} & 0 & 0 & \texttt{NA} \\
+01.in & 0 & 0 & \textbf{0} & \texttt{NA} & 0 & \textbf{0} & \texttt{NA} \\
 \hline
-02.in & 1 & 2 & 1 & 1.000000 & 1 & 1 & 1.000000 \\
+02.in & 1 & 2 & \textbf{1} & \textbf{1.000000} & 1 & \textbf{1} & \textbf{1.000000} \\
 \hline
-03.in & 1 & 2 & 1 & 1.000000 & 1 & 1 & 1.000000 \\
+03.in & 1 & 2 & \textbf{1} & \textbf{1.000000} & 1 & \textbf{1} & \textbf{1.000000} \\
 \hline
-04.in & 2 & 4 & 2 & 1.000000 & 2 & 2 & 1.000000 \\
+04.in & 2 & 4 & \textbf{2} & \textbf{1.000000} & 2 & \textbf{2} & \textbf{1.000000} \\
 \hline
-05.in & 4 & 4 & 4 & 1.000000 & 5 & 4 & 1.000000 \\
+05.in & 4 & 4 & \textbf{4} & \textbf{1.000000} & 5 & \textbf{4} & \textbf{1.000000} \\
 \hline
-06.in & 1 & 2 & 1 & 1.000000 & 1 & 1 & 1.000000 \\
+06.in & 1 & 2 & \textbf{1} & \textbf{1.000000} & 1 & \textbf{1} & \textbf{1.000000} \\
 \hline
-07.in & 10 & 20 & 10 & 1.000000 & 10 & 10 & 1.000000 \\
+07.in & 10 & 20 & \textbf{10} & \textbf{1.000000} & 10 & \textbf{10} & \textbf{1.000000} \\
 \hline
-08.in & 10 & 20 & 10 & 1.000000 & 10 & 10 & 1.000000 \\
+08.in & 10 & 20 & \textbf{10} & \textbf{1.000000} & 10 & \textbf{10} & \textbf{1.000000} \\
 \hline
-09.in & 10 & 20 & 10 & 1.000000 & 10 & 10 & 1.000000 \\
+09.in & 10 & 20 & \textbf{10} & \textbf{1.000000} & 10 & \textbf{10} & \textbf{1.000000} \\
 \hline
-10.in & 53 & 100 & 53 & 1.000000 & 61 & 53 & 1.000000 \\
+10.in & 53 & 100 & \textbf{53} & \textbf{1.000000} & 61 & \textbf{53} & \textbf{1.000000} \\
 \hline
-11.in & 23 & 24 & 23 & 1.000000 & 23 & 23 & 1.000000 \\
+11.in & 23 & 24 & \textbf{23} & \textbf{1.000000} & 23 & \textbf{23} & \textbf{1.000000} \\
 \hline
-12.in & 7 & 12 & 7 & 1.000000 & 10 & 7 & 1.000000 \\
+12.in & 7 & 12 & \textbf{7} & \textbf{1.000000} & 10 & \textbf{7} & \textbf{1.000000} \\
 \hline
-13.in & 18 & 34 & 20 & 1.111111 & 18 & 18 & 1.000000 \\
+13.in & 18 & 34 & 20 & 1.111111 & 18 & \textbf{18} & \textbf{1.000000} \\
 \hline
-14.in & 50 & 100 & 50 & 1.000000 & 50 & 50 & 1.000000 \\
+14.in & 50 & 100 & \textbf{50} & \textbf{1.000000} & 50 & \textbf{50} & \textbf{1.000000} \\
 \hline
-15.in & 14 & 14 & 14 & 1.000000 & 15 & 14 & 1.000000 \\
+15.in & 14 & 14 & \textbf{14} & \textbf{1.000000} & 15 & \textbf{14} & \textbf{1.000000} \\
 \hline
-16.in & 100 & 200 & 100 & 1.000000 & 100 & 100 & 1.000000 \\
+16.in & 100 & 200 & \textbf{100} & \textbf{1.000000} & 100 & \textbf{100} & \textbf{1.000000} \\
 \hline
-17.in & 3 & 6 & 3 & 1.000000 & 3 & 3 & 1.000000 \\
+17.in & 3 & 6 & \textbf{3} & \textbf{1.000000} & 3 & \textbf{3} & \textbf{1.000000} \\
 \hline
-18.in & 500 & 1000 & 500 & 1.000000 & 500 & 500 & 1.000000 \\
+18.in & 500 & 1000 & \textbf{500} & \textbf{1.000000} & 500 & \textbf{500} & \textbf{1.000000} \\
 \hline
-19.in & 1 & 2 & 1 & 1.000000 & 1 & 1 & 1.000000 \\
+19.in & 1 & 2 & \textbf{1} & \textbf{1.000000} & 1 & \textbf{1} & \textbf{1.000000} \\
 \hline
-20.in & 6 & 6 & 6 & 1.000000 & 6 & 6 & 1.000000 \\
+20.in & 6 & 6 & \textbf{6} & \textbf{1.000000} & 6 & \textbf{6} & \textbf{1.000000} \\
 \hline
-21.in & 250 & 500 & 250 & 1.000000 & 250 & 250 & 1.000000 \\
+21.in & 250 & 500 & \textbf{250} & \textbf{1.000000} & 250 & \textbf{250} & \textbf{1.000000} \\
 \hline
-22.in & 198 & 200 & 198 & 1.000000 & 200 & 198 & 1.000000 \\
+22.in & 198 & 200 & \textbf{198} & \textbf{1.000000} & 200 & \textbf{198} & \textbf{1.000000} \\
 \hline
-23.in & 0 & 0 & 0 & 1.000000 & 0 & 0 & 1.000000 \\
+23.in & 0 & 0 & \textbf{0} & \textbf{1.000000} & 0 & \textbf{0} & \textbf{1.000000} \\
 \hline
-24.in & 5 & 6 & 5 & 1.000000 & 5 & 5 & 1.000000 \\
+24.in & 5 & 6 & \textbf{5} & \textbf{1.000000} & 5 & \textbf{5} & \textbf{1.000000} \\
 \hline
-25.in & 100 & 200 & 100 & 1.000000 & 100 & 100 & 1.000000 \\
+25.in & 100 & 200 & \textbf{100} & \textbf{1.000000} & 100 & \textbf{100} & \textbf{1.000000} \\
 \hline
-26.in & 61 & 120 & 120 & 1.967213 & 121 & 120 & 1.967213 \\
+26.in & 61 & 120 & \textbf{120} & \textbf{1.967213} & 121 & \textbf{120} & \textbf{1.967213} \\
 \hline
-27.in & 61 & 120 & 61 & 1.000000 & 121 & 120 & 1.967213 \\
+27.in & 61 & 120 & \textbf{61} & \textbf{1.000000} & 121 & 120 & 1.967213 \\
 \hline
-28.in & 20 & 30 & 20 & 1.000000 & 30 & 20 & 1.000000 \\
+28.in & 20 & 30 & \textbf{20} & \textbf{1.000000} & 30 & \textbf{20} & \textbf{1.000000} \\
 \hline
-29.in & 29 & 40 & 29 & 1.000000 & 39 & 29 & 1.000000 \\
+29.in & 29 & 40 & \textbf{29} & \textbf{1.000000} & 39 & \textbf{29} & \textbf{1.000000} \\
 \hline
-30.in & 12 & 20 & 12 & 1.000000 & 12 & 12 & 1.000000 \\
+30.in & 12 & 20 & \textbf{12} & \textbf{1.000000} & 12 & \textbf{12} & \textbf{1.000000} \\
 \hline
-31.in & \texttt{NA} & 110 & 90 & \texttt{NA} & 120 & 92 & \texttt{NA} \\
+31.in & \texttt{NA} & 110 & \textbf{90} & \texttt{NA} & 120 & 92 & \texttt{NA} \\
 \hline
-32.in & \texttt{NA} & 118 & 104 & \texttt{NA} & 120 & 104 & \texttt{NA} \\
+32.in & \texttt{NA} & 118 & \textbf{104} & \texttt{NA} & 120 & \textbf{104} & \texttt{NA} \\
 \hline
-33.in & 30 & 32 & 30 & 1.000000 & 30 & 30 & 1.000000 \\
+33.in & 30 & 32 & \textbf{30} & \textbf{1.000000} & 30 & \textbf{30} & \textbf{1.000000} \\
 \hline
-34.in & \texttt{NA} & 100 & 78 & \texttt{NA} & 100 & 78 & \texttt{NA} \\
+34.in & \texttt{NA} & 100 & \textbf{78} & \texttt{NA} & 100 & \textbf{78} & \texttt{NA} \\
 \hline
-35.in & \texttt{NA} & 80 & 80 & \texttt{NA} & 120 & 80 & \texttt{NA} \\
+35.in & \texttt{NA} & 80 & \textbf{80} & \texttt{NA} & 120 & \textbf{80} & \texttt{NA} \\
 \hline
-36.in & 60 & 120 & 60 & 1.000000 & 60 & 60 & 1.000000 \\
+36.in & 60 & 120 & \textbf{60} & \textbf{1.000000} & 60 & \textbf{60} & \textbf{1.000000} \\
 \hline
-37.in & \texttt{NA} & 150 & 136 & \texttt{NA} & 160 & 131 & \texttt{NA} \\
+37.in & \texttt{NA} & 150 & 136 & \texttt{NA} & 160 & \textbf{131} & \texttt{NA} \\
 \hline
-38.in & \texttt{NA} & 156 & 133 & \texttt{NA} & 160 & 131 & \texttt{NA} \\
+38.in & \texttt{NA} & 156 & 133 & \texttt{NA} & 160 & \textbf{131} & \texttt{NA} \\
 \hline
-39.in & 119 & 200 & 146 & 1.226891 & 200 & 146 & 1.226891 \\
+39.in & 119 & 200 & \textbf{146} & \textbf{1.226891} & 200 & \textbf{146} & \textbf{1.226891} \\
 \hline
-40.in & \texttt{NA} & 176 & 130 & \texttt{NA} & 200 & 146 & \texttt{NA} \\
+40.in & \texttt{NA} & 176 & \textbf{130} & \texttt{NA} & 200 & 146 & \texttt{NA} \\
 \hline
+
 
 \end{longtable}
 \end{center}
@@ -673,10 +681,10 @@ Test & OPT & MATCH raw & MATCH & Ratio & LP raw & LP & Ratio \\
 
 %DONE WITH EXP DATA_______________________________________________________________________
 
-\subsection{Discutie rezultate experimentale}
+\section{Concluzii}
 \label{subsec:discussion_results}
 
-In aceasta subsectiune discutam datele obtinute (Tabelul~\ref{tab:times} si Tabelul~\ref{tab:quality}), le comparam cu asteptarile teoretice din sectiunile anterioare si formulam recomandari pentru utilizare in situatii reale. Am folosit patru abordari: un algoritm exact de tip Branch \& Bound (BB), o varianta exacta parametrizata (FPT / kernelization + rezolvare exacta pe kernel), o euristica 2-approx bazata pe matching (MATCH) si relaxarea liniara cu rotunjire (LP).
+In aceasta sectiune discutam datele obtinute (Tabelul~\ref{tab:times} si Tabelul~\ref{tab:quality}), le comparam cu asteptarile teoretice din sectiunile anterioare si formulam recomandari pentru utilizare in situatii reale. Am folosit patru abordari: un algoritm exact de tip Branch \& Bound (BB), o varianta exacta parametrizata (FPT / kernelization + rezolvare exacta pe kernel), o euristica 2-approx bazata pe matching (MATCH) si relaxarea liniara cu rotunjire (LP).
 
 \subsubsection{Observatii privind timpii de executie (scalare si praguri)}
 \textbf{(1) BB: comportament exponential, dar rapid pe grafuri mici/structurate.}
