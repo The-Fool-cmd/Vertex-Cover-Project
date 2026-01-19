@@ -1,5 +1,5 @@
 # Ignore generated test inputs and outputs
-/tests/
 /outputs/
 *.csv
+*.zip
 vc

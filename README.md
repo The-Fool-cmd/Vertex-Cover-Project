@@ -16,3 +16,8 @@ Run `make help` for a list of rules.
 ### **Results**
 Results can be found in `[name]`.csv, check make rules above.
 Results are also discussed in main.tex.
+
+---
+
+### **External Assistance**
+Ai for help with the tests generating script and algorithm implementations.

@@ -16,7 +16,7 @@ from pathlib import Path
 from itertools import combinations
 import random
 
-OUTDIR = Path(__file__).resolve().parent.parent / "tests"
+OUTDIR = Path(__file__).resolve().parent / "tests"
 OUTDIR.mkdir(exist_ok=True)
 
 def write_test(name, n, edges):
